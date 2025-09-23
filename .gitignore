@@ -1,0 +1,22 @@
+bin/
+obj/
+.vs/
+.vscode/
+.idea/
+TestResults/
+artifacts/
+packages/
+publish/ (if you ever publish outside bin/)
+.user
+.suo
+bin/
+obj/
+.vs/
+.vscode/
+.idea/
+TestResults/
+artifacts/
+packages/
+publish/ (if you ever publish outside bin/)
+.user
+.suo
