@@ -165,7 +165,9 @@ namespace InternetSpeedMonitor
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
             try
             {
-                var iconPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "icon.ico");
+                var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                var resourcesIconPath = System.IO.Path.Combine(baseDir, "Resources", "icon.ico");
+                var iconPath = resourcesIconPath;
                 if (System.IO.File.Exists(iconPath))
                 {
                     using var fs = System.IO.File.OpenRead(iconPath);
@@ -414,7 +416,9 @@ namespace InternetSpeedMonitor
         {
             try
             {
-                var iconPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "icon.ico");
+                var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                var resourcesIconPath = System.IO.Path.Combine(baseDir, "Resources", "icon.ico");
+                var iconPath = resourcesIconPath;
                 if (System.IO.File.Exists(iconPath))
                 {
                     return new Icon(iconPath, 16, 16);
