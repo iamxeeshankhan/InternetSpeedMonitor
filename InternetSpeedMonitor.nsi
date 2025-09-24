@@ -1,9 +1,10 @@
 !define APP_NAME "Internet Speed Monitor"
-!define COMP_NAME "Internet Speed Monitor"
-!define VERSION "1.0.0.0"
+!define COMP_NAME "M. Zeeshan Khan"
+!define VERSION "0.0.1"
 !define COPYRIGHT ""
 !define DESCRIPTION "See your internet speed in real time in your preferred data unit"
 !ifndef BUILD_DIR
+;!define BUILD_DIR "bin\Release\net9.0-windows\win-x86" ; <-- uncomment to build installer for x86 release
 !define BUILD_DIR "bin\Release\net9.0-windows\win-x64"
 !endif
 !define INSTALLER_NAME "$%USERPROFILE%\Desktop\Setup_InternetSpeedMonitor.exe"
@@ -12,8 +13,8 @@
 !define REG_ROOT "HKLM"
 !define REG_APP_PATH "Software\Microsoft\Windows\CurrentVersion\App Paths\${MAIN_APP_EXE}"
 !define UNINSTALL_PATH "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_NAME}"
-!define MUI_ICON "Resources\icon.ico"
-!define MUI_UNICON "Resources\icon.ico"
+!define MUI_ICON "Resources\installer.ico"
+!define MUI_UNICON "Resources\installer.ico"
 !define MUI_WELCOMEFINISHPAGE_BITMAP "Resources\setupbanner.bmp"
 !define MUI_UNWELCOMEFINISHPAGE_BITMAP "Resources\setupbanner.bmp"
 
@@ -23,7 +24,7 @@ var SM_Folder
 
 ######################################################################
 
-VIProductVersion  "${VERSION}"
+VIProductVersion  "${VERSION}.0"
 VIAddVersionKey "ProductName"  "${APP_NAME}"
 VIAddVersionKey "CompanyName"  "${COMP_NAME}"
 VIAddVersionKey "LegalCopyright"  "${COPYRIGHT}"
@@ -174,4 +175,3 @@ DeleteRegKey ${REG_ROOT} "${UNINSTALL_PATH}"
 SectionEnd
 
 ######################################################################
-

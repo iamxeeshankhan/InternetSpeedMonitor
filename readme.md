@@ -17,3 +17,5 @@ A lightweight desktop app built with C# (.NET) and WPF that shows your current i
 - Language: C# (.NET)
 - UI: WPF
 - Windows-only: Uses `System.Management` and WMI performance counters
+
+**Note:** This application displays the total internet speed of your entire PC — not just the speed of a specific browser, downloader, torrent client, or application. It measures the overall upload and download traffic coming in and out of your system. As a result, the reported speed may differ from what you see in individual applications such as your browser, download manager, or torrent client.

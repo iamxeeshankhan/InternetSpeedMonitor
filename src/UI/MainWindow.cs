@@ -672,9 +672,30 @@ namespace InternetSpeedMonitor
 
         private void ShowWindow()
         {
-            Show();
-            WindowState = WindowState.Normal;
+            BringToForeground();
+        }
+
+        public void BringToForeground()
+        {
+            // Show the window if it's hidden
+            if (!IsVisible)
+            {
+                Show();
+            }
+
+            // Restore if minimized
+            if (WindowState == WindowState.Minimized)
+            {
+                WindowState = WindowState.Normal;
+            }
+
+            // Bring to front and activate
             Activate();
+            Topmost = true;
+            Topmost = false;
+            Focus();
+
+            // Hide tray icon when window is shown
             if (_notifyIcon != null)
                 _notifyIcon.Visible = false;
         }
