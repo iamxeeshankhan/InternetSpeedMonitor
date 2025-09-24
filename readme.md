@@ -1,6 +1,6 @@
 ## Internet Speed Monitor
 
-A lightweight desktop app built with C# (.NET) and WPF that shows your current internet upload/download speeds. It also provides a click-through, always-on-top overlay that you can position on screen, customize, and persist settings across launches.
+A lightweight desktop app built with C# (.NET) and WPF that displays your current internet upload and download speeds. You can choose your preferred unit of measurement. It also offers a click-through, always-on-top overlay that you can position anywhere on the screen, customize, and have persist across launches.
 
 ### Features
 
@@ -11,6 +11,11 @@ A lightweight desktop app built with C# (.NET) and WPF that shows your current i
 - Background options: No Background (transparent) or colored translucent background
 - System tray support (minimize to tray)
 - Settings persistence in AppData
+
+### Download
+You can download the installer here: [Internet Speed Monitor Releases](https://github.com/iamxeeshankhan/InternetSpeedMonitor/releases/tag/ISM)  
+No additional software is required - simply install and run the application via the desktop shortcut.  
+This app is available for Windows (x86 and x64) only.
 
 ### Tech Stack
 
