@@ -37,11 +37,12 @@ namespace InternetSpeedMonitor
 		private WpfComboBox? _fontFamilyCombo;
 		private WpfComboBox? _fontSizeCombo;
 		private WpfComboBox? _fontVariantCombo;
+        private InternetSpeedMonitor.Services.INetworkSpeedService _speedService = new InternetSpeedMonitor.Services.NetworkInterfaceSpeedService();
 
         // Properties for data binding
         private string _downloadSpeed = "0 KB/s";
         private string _uploadSpeed = "0 KB/s";
-        private string _selectedUnit = "KB/s";
+        private string _selectedUnit = "kB/s";
         private string _connectionInfo = "No connection detected";
         private string _adapterInfo = "Detecting adapters...";
         private bool _autoUnitSwitching = true;
@@ -97,7 +98,7 @@ namespace InternetSpeedMonitor
             }
         }
 
-        public List<string> AvailableUnits { get; } = new() { "B/s", "KB/s", "MB/s", "Mb/s" };
+        public List<string> AvailableUnits { get; } = new() { "B/s", "kB/s", "MB/s", "Mb/s" };
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -401,7 +402,7 @@ namespace InternetSpeedMonitor
             {
                 Icon = LoadTrayIcon(),
                 Visible = false, // <-- when application is open, don't show in tray
-                Text = "↓0 KB/s ↑0 KB/s",
+                Text = "↓0 kB/s ↑0 kB/s",
             };
 
             var contextMenu = new ContextMenuStrip();
@@ -432,13 +433,13 @@ namespace InternetSpeedMonitor
         {
             // Render speeds onto a 16x16 icon with transparent background and larger text
             string shortDown =
-                bytesDownPerSec >= 1024 * 1024
-                    ? $"{bytesDownPerSec / (1024 * 1024)}M"
-                    : $"{Math.Max(1, bytesDownPerSec / 1024)}K";
+                bytesDownPerSec >= 1_000_000
+                    ? $"{bytesDownPerSec / 1_000_000}M"
+                    : $"{Math.Max(1, bytesDownPerSec / 1_000)}K";
             string shortUp =
-                bytesUpPerSec >= 1024 * 1024
-                    ? $"{bytesUpPerSec / (1024 * 1024)}M"
-                    : $"{Math.Max(1, bytesUpPerSec / 1024)}K";
+                bytesUpPerSec >= 1_000_000
+                    ? $"{bytesUpPerSec / 1_000_000}M"
+                    : $"{Math.Max(1, bytesUpPerSec / 1_000)}K";
 
             var bmp = new Bitmap(16, 16);
             using (var g = Graphics.FromImage(bmp))
@@ -481,66 +482,37 @@ namespace InternetSpeedMonitor
 
         private async void UpdateSpeedAsync()
         {
-            await Task.Run(() =>
+            try
             {
-                try
+                var (down, up) = await _speedService.GetAggregateBytesPerSecondAsync();
+                _lastUpdate = DateTime.Now;
+
+                Dispatcher.Invoke(() =>
                 {
-                    long totalDownload = 0;
-                    long totalUpload = 0;
-                    var currentTime = DateTime.Now;
+                    DownloadSpeed = FormatSpeed(down, SelectedUnit);
+                    UploadSpeed = FormatSpeed(up, SelectedUnit);
 
-                    using var searcher = new ManagementObjectSearcher(
-                        "SELECT Name, BytesReceivedPerSec, BytesSentPerSec FROM Win32_PerfFormattedData_Tcpip_NetworkInterface"
-                    );
+                    _overlay?.UpdateSpeed(UploadSpeed, DownloadSpeed);
 
-                    foreach (ManagementObject obj in searcher.Get())
+                    if (_notifyIcon != null)
                     {
-                        var name = obj["Name"]?.ToString();
-                        if (
-                            string.IsNullOrEmpty(name)
-                            || name.Contains("Loopback")
-                            || name.Contains("Teredo")
-                            || name.Contains("isatap")
-                        )
-                            continue;
-
-                        var bytesReceived = Convert.ToInt64(obj["BytesReceivedPerSec"] ?? 0);
-                        var bytesSent = Convert.ToInt64(obj["BytesSentPerSec"] ?? 0);
-
-                        totalDownload += bytesReceived;
-                        totalUpload += bytesSent;
+                        if (_notifyIcon.Icon == null)
+                            _notifyIcon.Icon = LoadTrayIcon();
+                        _notifyIcon.Visible = true;
+                        _notifyIcon.Text = $"↓{DownloadSpeed} ↑{UploadSpeed}";
                     }
-
-                    _lastUpdate = currentTime;
-
-                    Dispatcher.Invoke(() =>
-                    {
-                        DownloadSpeed = FormatSpeed(totalDownload, SelectedUnit);
-                        UploadSpeed = FormatSpeed(totalUpload, SelectedUnit);
-
-                        // Update overlay
-                        _overlay?.UpdateSpeed(UploadSpeed, DownloadSpeed);
-
-                        if (_notifyIcon != null)
-                        {
-                            if (_notifyIcon.Icon == null)
-                                _notifyIcon.Icon = LoadTrayIcon();
-                            _notifyIcon.Visible = true;
-                            _notifyIcon.Text = $"↓{DownloadSpeed} ↑{UploadSpeed}"; // tooltip text updates
-                        }
-                    });
-                }
-                catch (Exception ex)
+                });
+            }
+            catch (Exception ex)
+            {
+                Dispatcher.Invoke(() =>
                 {
-                    Dispatcher.Invoke(() =>
-                    {
-                        DownloadSpeed = "Error";
-                        UploadSpeed = "Error";
-                        _overlay?.UpdateSpeed("Err", "Err");
-                    });
-                    Debug.WriteLine($"Error updating speed: {ex.Message}");
-                }
-            });
+                    DownloadSpeed = "Error";
+                    UploadSpeed = "Error";
+                    _overlay?.UpdateSpeed("Err", "Err");
+                });
+                Debug.WriteLine($"Error updating speed: {ex.Message}");
+            }
         }
 
         private string FormatSpeed(long bytesPerSecond, string unit)
@@ -553,22 +525,25 @@ namespace InternetSpeedMonitor
             return unit switch
             {
                 "B/s" => $"{bytesPerSecond} B/s",
-                "KB/s" => $"{bytesPerSecond / 1024.0:F1} KB/s",
-                "MB/s" => $"{bytesPerSecond / (1024.0 * 1024.0):F2} MB/s",
-                "Mb/s" => $"{(bytesPerSecond * 8) / (1000.0 * 1000.0):F2} Mb/s",
-                _ => $"{bytesPerSecond / 1024.0:F1} KB/s",
+                // Use decimal units to match browsers and most download managers (kilo=1000)
+                "kB/s" => $"{bytesPerSecond / 1000.0:F1} kB/s",
+                "MB/s" => $"{bytesPerSecond / 1_000_000.0:F2} MB/s",
+                // Megabits per second also decimal-based
+                "Mb/s" => $"{(bytesPerSecond * 8) / 1_000_000.0:F2} Mb/s",
+                _ => $"{bytesPerSecond / 1_000_000.0:F2} MB/s",
             };
         }
 
         private string FormatSpeedWithAutoSwitching(long bytesPerSecond)
         {
-            if (bytesPerSecond >= 1024 * 1024)
+            // Auto-switch using decimal units (kB=1000 B, MB=1,000,000 B)
+            if (bytesPerSecond >= 1_000_000)
             {
-                return $"{bytesPerSecond / (1024.0 * 1024.0):F2} MB/s";
+                return $"{bytesPerSecond / 1_000_000.0:F2} MB/s";
             }
-            else if (bytesPerSecond >= 1024)
+            else if (bytesPerSecond >= 1_000)
             {
-                return $"{bytesPerSecond / 1024.0:F1} KB/s";
+                return $"{bytesPerSecond / 1_000.0:F1} kB/s";
             }
             else
             {
@@ -660,13 +635,7 @@ namespace InternetSpeedMonitor
                 if (_notifyIcon.Icon == null)
                     _notifyIcon.Icon = LoadTrayIcon(); // fallback so it’s never invisible
 
-                _notifyIcon.Visible = true;
-                _notifyIcon.ShowBalloonTip(
-                    2000,
-                    "Speed Monitor",
-                    "Application minimized to system tray",
-                    ToolTipIcon.Info
-                );
+				_notifyIcon.Visible = true;
             }
         }
 

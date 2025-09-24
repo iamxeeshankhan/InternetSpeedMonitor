@@ -1,6 +1,6 @@
 !define APP_NAME "Internet Speed Monitor"
 !define COMP_NAME "M. Zeeshan Khan"
-!define VERSION "0.0.1"
+!define VERSION "0.0.2"
 !define COPYRIGHT ""
 !define DESCRIPTION "See your internet speed in real time in your preferred data unit"
 !ifndef BUILD_DIR

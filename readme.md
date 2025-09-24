@@ -5,7 +5,7 @@ A lightweight desktop app built with C# (.NET) and WPF that displays your curren
 ### Features
 
 - Always-on-top overlay with click-through behavior
-- Live upload/download speeds (from Windows performance counters)
+- Live upload/download speeds (from system network statistics)
 - Position presets: Top Left, Top Center, Top Right, Bottom Left, Bottom Center, Bottom Right
 - Text customization: color, font family, size, style (Regular, Bold, Italic, Bold Italic, Sharp)
 - Background options: No Background (transparent) or colored translucent background
@@ -21,6 +21,6 @@ This app is available for Windows (x86 and x64) only.
 
 - Language: C# (.NET)
 - UI: WPF
-- Windows-only: Uses `System.Management` and WMI performance counters
+- Windows-only: Uses `System.Net.NetworkInformation` (with optional WMI)
 
 **Note:** This application displays the total internet speed of your entire PC — not just the speed of a specific browser, downloader, torrent client, or application. It measures the overall upload and download traffic coming in and out of your system. As a result, the reported speed may differ from what you see in individual applications such as your browser, download manager, or torrent client.
