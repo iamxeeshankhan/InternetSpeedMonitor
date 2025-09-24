@@ -23,4 +23,7 @@ This app is available for Windows (x86 and x64) only.
 - UI: WPF
 - Windows-only: Uses `System.Net.NetworkInformation` (with optional WMI)
 
-**Note:** This application displays the total internet speed of your entire PC — not just the speed of a specific browser, downloader, torrent client, or application. It measures the overall upload and download traffic coming in and out of your system. As a result, the reported speed may differ from what you see in individual applications such as your browser, download manager, or torrent client.
+**Notes:** 
+- This application displays the total internet speed of your entire PC — not just the speed of a specific browser, downloader, torrent client, or application. It measures the overall upload and download traffic coming in and out of your system. As a result, the reported speed may differ from what you see in individual applications such as your browser, download manager, or torrent client.
+
+- When you start this application, the internet speed shown may be inaccurate at first. Please allow 1–2 minutes for it to stabilize. After that, it will display the accurate incoming and outgoing traffic of your PC or laptop.
