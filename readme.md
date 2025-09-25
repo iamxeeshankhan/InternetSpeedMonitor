@@ -13,7 +13,7 @@ A lightweight desktop app built with C# (.NET) and WPF that displays your curren
 - Settings persistence in AppData
 
 ### Download
-You can download the installer here: [Internet Speed Monitor Releases](https://github.com/iamxeeshankhan/InternetSpeedMonitor/releases/tag/ISM)  
+You can download the installer here: [Internet Speed Monitor Releases](https://github.com/iamxeeshankhan/InternetSpeedMonitor/releases)  
 No additional software is required - simply install and run the application via the desktop shortcut.  
 This app is available for Windows (x86 and x64) only.
 
